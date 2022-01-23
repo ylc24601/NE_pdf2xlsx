@@ -4,7 +4,6 @@ from pdfminer.high_level import extract_text
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer
 import re
-import os
 import pandas as pd
 from itertools import zip_longest
 from io import BytesIO
@@ -63,14 +62,14 @@ def main(QuestionFileName, answerFileName,tags=False):
         order = "2"
     if re.search("類科名稱：醫師", extracted_text):
         kind = "M"
-    else:
+        kind_name = "醫師"
+    elif re.search("類科名稱：牙醫師", extracted_text):
         kind = "D"
+        kind_name = "牙醫師"
+
     sequence = (kind,year[0],order)
-    st.write("此份考題為第",year[0],"年第",order,"次考題")
-    # st.write("-".join(sequence))
+    st.write("此份考題為",kind_name,year[0],"年第",order,"次考題")
     test = "-".join(sequence)
-    # df["Origin"] = kind +
-    # df["Year"] = year
     if tags:
         Q = re.findall(r'\n(\d+\.[\s\S]*?(?=\n\s*A\.))', extracted_text)
         A = re.findall(r'\n\s*(A\.[\s\S]*?(?=\nB))', extracted_text)
@@ -93,12 +92,21 @@ def main(QuestionFileName, answerFileName,tags=False):
     df = pd.DataFrame(cleaned_data, columns=['Question', 'A', 'B', 'C', 'D', 'Answer'])
     df.index += 1
     # df["Origin"] = "-".join(sequence) + str(df.index)
-
-    df["Origin"] = test + "_" + df.index.astype(str)
-    df["Kind"] = kind
-    df["Year"] = year[0]
-    df["Order"] = order
-    df["qnumber"] = df.index
+    origin_check = st.sidebar.checkbox(label="加入Origin欄位:", value= True, help="如M-110-2_3")
+    if origin_check:
+        df["Origin"] = test + "_" + df.index.astype(str)
+    kind_check = st.sidebar.checkbox(label="加入Kind欄位:", value= True, help="醫師M或牙醫師D")
+    if kind_check:
+        df["Kind"] = kind
+    year_check = st.sidebar.checkbox(label="加入Year欄位:", value= True, help="考試年度")
+    if year_check:
+        df["Year"] = year[0]
+    order_check = st.sidebar.checkbox(label="加入Order欄位:", value= True, help="第幾次考試")
+    if order_check:
+        df["Order"] = order
+    qnum_check = st.sidebar.checkbox(label="加入Qnum欄位:", value= True, help="第幾題")
+    if qnum_check:
+        df["Qnum"] = df.index
     return df, test
 
 
