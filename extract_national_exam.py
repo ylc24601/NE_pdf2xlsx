@@ -58,7 +58,7 @@ def main(QuestionFileName, answerFileName,tags=False):
     year = re.findall(r'(\d+)年', extracted_text)
     if re.search("第一次", extracted_text):
         order = "1"
-    else:
+    if re.search("第二次", extracted_text):
         order = "2"
     if re.search("類科名稱：醫師", extracted_text):
         kind = "M"
