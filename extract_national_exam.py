@@ -46,10 +46,10 @@ def getAnswer(file_name):
     ans_text = extract_text(file_name)
     strQ2B(ans_text)
     Ans = re.findall(r' ([ABCD#])', strQ2B(ans_text))
-    if len(Ans) != 100:
-        print('Answer numbers are not equal to 100, please check regex search pattern!')
-    else:
-        return Ans
+#     if len(Ans) != 100:
+#         print('Answer numbers are not equal to 100, please check regex search pattern!')
+#     else:
+    return Ans
 
 
 
