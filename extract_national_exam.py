@@ -25,7 +25,7 @@ def strQ2B(ustring):
         ss.append(rstring)
     return ''.join(ss)
 
-@st.cache
+@st.cache_data
 # Retrieve question and options from pdf
 def getQnOptions(file_name):
     '''list questions and options in an ordered sequence'''
@@ -41,24 +41,24 @@ def getQnOptions(file_name):
     return rawtext
 
 
-@st.cache
+@st.cache_data
 def getAnswer(file_name):
     ans_text = extract_text(file_name)
     strQ2B(ans_text)
     Ans = re.findall(r' ([ABCD#])', strQ2B(ans_text))
-#     if len(Ans) != 100:
-#         print('Answer numbers are not equal to 100, please check regex search pattern!')
-#     else:
+#    if len(Ans) != 100:
+#        print('Answer numbers are not equal to 100, please check regex search pattern!')
+#    else:
     return Ans
 
 
 
 def main(QuestionFileName, answerFileName,tags=False):
     extracted_text = getQnOptions(QuestionFileName)
-    year = re.findall(r'(\d+)年', extracted_text)
+    year = re.findall(r'(\d+)\s*年', extracted_text)
     if re.search("第一次", extracted_text):
         order = "1"
-    if re.search("第二次", extracted_text):
+    else:
         order = "2"
     if re.search("類科名稱：醫師", extracted_text):
         kind = "M"
@@ -66,7 +66,7 @@ def main(QuestionFileName, answerFileName,tags=False):
     elif re.search("類科名稱：牙醫師", extracted_text):
         kind = "D"
         kind_name = "牙醫師"
-
+    # st.write(extracted_text) # <- this line is for debug
     sequence = (kind,year[0],order)
     st.write("此份考題為",kind_name,year[0],"年第",order,"次考題")
     test = "-".join(sequence)
@@ -92,19 +92,19 @@ def main(QuestionFileName, answerFileName,tags=False):
     df = pd.DataFrame(cleaned_data, columns=['Question', 'A', 'B', 'C', 'D', 'Answer'])
     df.index += 1
     # df["Origin"] = "-".join(sequence) + str(df.index)
-    origin_check = st.sidebar.checkbox(label="加入Origin欄位:", value= True, help="如M-110-2_3")
+    origin_check = st.sidebar.checkbox(label="加入Origin欄位:", value= True, help="如M-110-2_3", key = "c1")
     if origin_check:
         df["Origin"] = test + "_" + df.index.astype(str)
-    kind_check = st.sidebar.checkbox(label="加入Kind欄位:", value= True, help="醫師M或牙醫師D")
+    kind_check = st.sidebar.checkbox(label="加入Kind欄位:", value= True, help="醫師M或牙醫師D", key = "c2")
     if kind_check:
         df["Kind"] = kind
-    year_check = st.sidebar.checkbox(label="加入Year欄位:", value= True, help="考試年度")
+    year_check = st.sidebar.checkbox(label="加入Year欄位:", value= True, help="考試年度", key = "c3")
     if year_check:
         df["Year"] = year[0]
-    order_check = st.sidebar.checkbox(label="加入Order欄位:", value= True, help="第幾次考試")
+    order_check = st.sidebar.checkbox(label="加入Order欄位:", value= True, help="第幾次考試", key = "c4")
     if order_check:
         df["Order"] = order
-    qnum_check = st.sidebar.checkbox(label="加入Qnum欄位:", value= True, help="第幾題")
+    qnum_check = st.sidebar.checkbox(label="加入Qnum欄位:", value= True, help="第幾題", key = "c5")
     if qnum_check:
         df["Qnum"] = df.index
     return df, test
@@ -140,4 +140,4 @@ if uploaded_answer_sheet and uploaded_answer_sheet is not None:
 
 
 # if __name__ == '__main__':
-#     main('110101_1301.pdf', '110101_ANS1301.pdf', 'M-110-2_wo_tag.xlsx', tags=False)
+#     main('110101_1301.pdf', '110101_ANS1301.pdf')
