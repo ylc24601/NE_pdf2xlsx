@@ -104,10 +104,16 @@ def main(QuestionFileName, answerFileName,tags=False):
     elif re.search("類科名稱：牙醫師", extracted_text):
         kind = "D"
         kind_name = "牙醫師"
+    else:
+        kind = "Unknown"
+        kind_name = "無法辨識"
     # st.write(extracted_text) # <- this line is for debug
     sequence = (kind,year[0],order)
-    st.write("此份考題為",kind_name,year[0],"年第",order,"次考題")
-    st.warning("請確認是否正確!")
+    if kind == "Unknown":
+        st.warning("OCR無法正確辨識考試類別與年份，請手動輸入")
+    else:
+        st.write("此份考題為",kind_name,year[0],"年第",order,"次考題")
+        st.warning("請確認是否正確!")
     test = "-".join(sequence)
     if tags:
         Q = re.findall(r'\n(\d+\.[\s\S]*?(?=\n\s*A\.))', extracted_text)
@@ -157,7 +163,7 @@ def to_excel(df):
     worksheet = writer.sheets['Sheet1']
     format1 = workbook.add_format({'num_format': '0.00'})
     worksheet.set_column('A:A', None, format1)
-    writer.save()
+    writer.close()
     processed_data = output.getvalue()
     return processed_data
 
